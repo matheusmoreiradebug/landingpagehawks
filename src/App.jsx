@@ -199,7 +199,14 @@ function Nav() {
       }}>
         <img
           src={logoSrc} alt="Hawks Assessoria Digital"
-          style={{ height: mob ? "34px" : "42px", objectFit: "contain", cursor: "pointer" }}
+          style={{
+            height: mob ? "52px" : "68px",
+            width: "auto",
+            objectFit: "contain",
+            cursor: "pointer",
+            /* filtro branco para garantir visibilidade máxima sobre fundo escuro */
+            filter: "brightness(0) invert(1)",
+          }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         />
 
@@ -251,6 +258,13 @@ function Nav() {
           transform: open ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.32s cubic-bezier(0.4,0,0.2,1)",
         }}>
+          {/* Logo no menu mobile */}
+          <img src={logoSrc} alt="Hawks" style={{
+            height: "64px", objectFit: "contain", marginBottom: "32px",
+            filter: "brightness(0) invert(1)",
+            opacity: open ? 1 : 0,
+            transition: "opacity 0.28s ease 0.05s",
+          }} />
           {links.map((l, i) => (
             <button key={l.id} onClick={() => go(l.id)} style={{
               background: "transparent", border: "none", color: WHITE,
@@ -361,6 +375,121 @@ function Hero() {
         html{scroll-behavior:smooth}
         body{margin:0;padding:0;overflow-x:hidden}
       `}</style>
+    </section>
+  );
+}
+
+// ─── BRAND STATEMENT ──────────────────────────────────────────────────────────
+// Logo grande + frase de posicionamento — âncora de memória de marca
+function BrandStatement() {
+  const mob = useIsMobile();
+  return (
+    <section style={{
+      background: BLACK_SURF,
+      borderTop:    `1px solid ${GOLD_DIM}`,
+      borderBottom: `1px solid ${GOLD_DIM}`,
+      padding: mob ? "56px 20px" : "88px 48px",
+      textAlign: "center",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {/* Glow central */}
+      <div style={{
+        position: "absolute", top: "50%", left: "50%",
+        transform: "translate(-50%,-50%)",
+        width: mob ? "300px" : "600px", height: mob ? "300px" : "600px",
+        borderRadius: "50%",
+        background: `radial-gradient(circle,${GOLD}0E,transparent 70%)`,
+        pointerEvents: "none",
+      }} />
+
+      <Reveal>
+        {/* Logo bem grande — máxima visibilidade e lembrança */}
+        <img
+          src={logoSrc}
+          alt="Hawks Assessoria Digital"
+          style={{
+            height: mob ? "96px" : "140px",
+            width: "auto",
+            objectFit: "contain",
+            display: "block",
+            margin: "0 auto",
+            filter: "brightness(0) invert(1)",
+          }}
+        />
+
+        {/* Linha dourada sob a logo */}
+        <div style={{
+          width: mob ? "48px" : "80px", height: "1px",
+          background: `linear-gradient(90deg,transparent,${GOLD},transparent)`,
+          margin: mob ? "24px auto 20px" : "32px auto 28px",
+        }} />
+
+        {/* Frase de posicionamento — curta, direta, memorável */}
+        <p style={{
+          fontFamily: "'Cormorant Garamond',serif",
+          fontSize: mob ? "clamp(20px,5.5vw,28px)" : "clamp(26px,2.8vw,36px)",
+          fontWeight: 600,
+          color: WHITE,
+          lineHeight: 1.45,
+          margin: "0 auto",
+          maxWidth: mob ? "100%" : "720px",
+          letterSpacing: "0.01em",
+        }}>
+          A única assessoria digital do Brasil<br />
+          especializada em{" "}
+          <span style={{ color: GOLD, fontStyle: "italic" }}>
+            marcenarias e indústria moveleira de alto padrão.
+          </span>
+        </p>
+
+        {/* Tag de credencial */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: "10px",
+          marginTop: mob ? "24px" : "32px",
+          border: `1px solid ${GOLD_DIM}`,
+          padding: mob ? "10px 20px" : "12px 28px",
+        }}>
+          <span style={{
+            fontFamily: "'Cormorant Garamond',serif",
+            fontSize: mob ? "12px" : "13px",
+            color: GRAY_L,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+          }}>
+            Tecnologia Exclusiva
+          </span>
+          <span style={{
+            width: "1px", height: "14px",
+            background: GOLD_DIM,
+            display: "inline-block",
+          }} />
+          <span style={{
+            fontFamily: "'Cormorant Garamond',serif",
+            fontSize: mob ? "12px" : "13px",
+            color: GOLD,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+          }}>
+            Sistema Pegasus
+          </span>
+          <span style={{
+            width: "1px", height: "14px",
+            background: GOLD_DIM,
+            display: "inline-block",
+          }} />
+          <span style={{
+            fontFamily: "'Cormorant Garamond',serif",
+            fontSize: mob ? "12px" : "13px",
+            color: GRAY_L,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+          }}>
+            Meta Ads de Alto Ticket
+          </span>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -1029,6 +1158,7 @@ export default function HawksLanding() {
     <div style={{ fontFamily: "'Cormorant Garamond',serif", background: "#080808", color: "#FAFAFA", margin: 0, padding: 0, overflowX: "hidden" }}>
       <Nav />
       <Hero />
+      <BrandStatement />
       <AutoridadeNicho />
       <Pegasus />
       <Servicos />
