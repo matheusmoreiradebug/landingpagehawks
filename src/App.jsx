@@ -1,19 +1,27 @@
 import logoSrc from "./assets/logo.png";
 import { useState, useEffect, useRef } from "react";
 import {
-  ArrowRight, ChevronDown, Star, Target,
+  ArrowRight, ChevronDown, Star, Target, Zap, Shield, Eye,
   BarChart3, CheckCircle, Phone, Mail, Instagram, MessageCircle,
-  Video, Camera, Globe, ShoppingBag, Layout, Menu, X
+  Video, Camera, Globe, ShoppingBag, Layout, Menu, X,
+  TrendingUp, Database, Cpu, Lock, Activity, Users
 } from "lucide-react";
 
-const GOLD       = "#B8973E";
-const GOLD_LIGHT = "#D4AF6A";
-const BLACK      = "#0A0A0A";
-const BLACK_CARD = "#111111";
-const BLACK_SURF = "#161616";
-const WHITE      = "#F5F3EE";
-const GRAY       = "#888880";
+// ─── Design tokens ────────────────────────────────────────────────────────────
+// Dourado aplicado APENAS em elementos de destaque (ícones, bordas, CTAs).
+// Texto de leitura: sempre WHITE (#FAFAFA) para clareza máxima.
+const GOLD        = "#C4973A";   // tom mais quente — menos amarelo, mais cobre
+const GOLD_DIM    = "#C4973A44"; // bordas sutis
+const GOLD_GLOW   = "#C4973A22"; // fundos de hover
+const BLACK       = "#080808";
+const BLACK_CARD  = "#101010";
+const BLACK_SURF  = "#141414";
+const WHITE       = "#FAFAFA";   // branco puro para leitura
+const GRAY        = "#7A7A78";
+const GRAY_L      = "#B0B0AE";   // cinza claro para subtítulos
+const WA_URL      = "https://wa.me/5511999990000";
 
+// ─── Hooks ────────────────────────────────────────────────────────────────────
 function useIsMobile(bp = 768) {
   const [mob, setMob] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < bp : false
@@ -28,43 +36,56 @@ function useIsMobile(bp = 768) {
 
 function useReveal(threshold = 0.1) {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [v, setV] = useState(false);
   useEffect(() => {
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      ([e]) => { if (e.isIntersecting) { setV(true); obs.disconnect(); } },
       { threshold }
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
-  return [ref, visible];
+  return [ref, v];
 }
 
 function Reveal({ children, delay = 0 }) {
-  const [ref, visible] = useReveal();
+  const [ref, v] = useReveal();
   return (
     <div ref={ref} style={{
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(22px)",
-      transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`
+      opacity: v ? 1 : 0,
+      transform: v ? "translateY(0)" : "translateY(20px)",
+      transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`
     }}>
       {children}
     </div>
   );
 }
 
-function GoldLine({ width = "60px" }) {
-  return <div style={{ width, height: "1px", background: `linear-gradient(90deg,transparent,${GOLD},transparent)`, margin: "0 auto" }} />;
+// ─── UI primitives ────────────────────────────────────────────────────────────
+function GoldLine({ width = "56px" }) {
+  return (
+    <div style={{
+      width, height: "1px",
+      background: `linear-gradient(90deg,transparent,${GOLD},transparent)`,
+      margin: "0 auto"
+    }} />
+  );
 }
 
+// Eyebrow label — dourado APENAS aqui (elemento de destaque)
 function Label({ children }) {
   return (
-    <span style={{ fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.28em", fontSize: "11px", color: GOLD, textTransform: "uppercase", fontWeight: 600 }}>
+    <span style={{
+      fontFamily: "'Cormorant Garamond',serif",
+      letterSpacing: "0.3em", fontSize: "11px",
+      color: GOLD, textTransform: "uppercase", fontWeight: 600
+    }}>
       {children}
     </span>
   );
 }
 
+// CTA primário — fundo dourado, texto preto. Único lugar com fundo gold.
 function GoldButton({ children, onClick, large = false, fullWidth = false }) {
   const [hov, setHov] = useState(false);
   const mob = useIsMobile();
@@ -74,25 +95,69 @@ function GoldButton({ children, onClick, large = false, fullWidth = false }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: hov ? GOLD_LIGHT : GOLD, color: BLACK, border: "none",
-        padding: large ? (mob ? "15px 24px" : "18px 48px") : (mob ? "13px 20px" : "14px 36px"),
-        fontSize: large ? (mob ? "13px" : "15px") : (mob ? "12px" : "13px"),
-        fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
+        background: hov ? "#D4A84A" : GOLD,
+        color: "#080808",
+        border: "none",
+        padding: large
+          ? (mob ? "15px 22px" : "18px 52px")
+          : (mob ? "13px 20px" : "13px 36px"),
+        fontSize: large ? (mob ? "13px" : "14px") : (mob ? "12px" : "13px"),
+        fontWeight: 800,
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
         fontFamily: "'Cormorant Garamond',serif",
-        cursor: "pointer", display: "inline-flex", alignItems: "center",
-        justifyContent: "center", gap: "10px",
-        transition: "all 0.3s ease",
+        cursor: "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+        transition: "all 0.28s ease",
         transform: hov ? "translateY(-2px)" : "none",
-        boxShadow: hov ? `0 8px 32px ${GOLD}44` : "none",
+        boxShadow: hov ? `0 6px 28px ${GOLD}55` : `0 2px 12px ${GOLD}30`,
         width: fullWidth ? "100%" : "auto",
-        minHeight: "48px",
+        minHeight: "50px",
+        borderRadius: "1px",
       }}>
-      {children}<ArrowRight size={16} />
+      {children}
+      <ArrowRight size={15} />
     </button>
   );
 }
 
-// ── NAV ────────────────────────────────────────────────────────────────────────
+// CTA secundário — borda dourada, fundo transparente
+function OutlineButton({ children, onClick, fullWidth = false }) {
+  const [hov, setHov] = useState(false);
+  const mob = useIsMobile();
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? GOLD_GLOW : "transparent",
+        color: WHITE,
+        border: `1px solid ${GOLD}`,
+        padding: mob ? "13px 20px" : "13px 32px",
+        fontSize: mob ? "12px" : "13px",
+        fontWeight: 600,
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        fontFamily: "'Cormorant Garamond',serif",
+        cursor: "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+        transition: "all 0.25s",
+        width: fullWidth ? "100%" : "auto",
+        minHeight: "50px",
+      }}>
+      {children}
+    </button>
+  );
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen]         = useState(false);
@@ -109,64 +174,70 @@ function Nav() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  const scrollTo = (id) => {
+  const go = (id) => {
     setOpen(false);
-    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 300);
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 280);
   };
 
   const links = [
-    { label: "Serviços",    id: "servicos"    },
-    { label: "Resultados",  id: "resultados"  },
-    { label: "Metodologia", id: "metodologia" },
-    { label: "Contato",     id: "cta"         },
+    { label: "Serviços",     id: "servicos"    },
+    { label: "Pegasus",      id: "pegasus"     },
+    { label: "Resultados",   id: "resultados"  },
+    { label: "Metodologia",  id: "metodologia" },
   ];
 
   return (
     <>
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
-        background: scrolled || open ? `${BLACK}F2` : "transparent",
-        borderBottom: scrolled ? `1px solid ${GOLD}20` : "none",
-        backdropFilter: scrolled || open ? "blur(14px)" : "none",
-        padding: mob ? "13px 20px" : "18px 48px",
+        background: scrolled || open ? `${BLACK}F4` : "transparent",
+        borderBottom: scrolled ? `1px solid ${GOLD_DIM}` : "none",
+        backdropFilter: scrolled || open ? "blur(16px)" : "none",
+        padding: mob ? "13px 20px" : "16px 48px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         transition: "all 0.35s ease",
       }}>
-        <img src={logoSrc} alt="Hawks" style={{ height: mob ? "36px" : "44px", objectFit: "contain", cursor: "pointer" }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
+        <img
+          src={logoSrc} alt="Hawks Assessoria Digital"
+          style={{ height: mob ? "34px" : "42px", objectFit: "contain", cursor: "pointer" }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        />
 
         {!mob && (
           <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
             {links.map(l => (
-              <span key={l.id} onClick={() => scrollTo(l.id)} style={{
-                color: GRAY, fontSize: "13px", letterSpacing: "0.1em", cursor: "pointer",
-                fontFamily: "'Cormorant Garamond',serif", fontWeight: 500, transition: "color 0.2s"
+              <span key={l.id} onClick={() => go(l.id)} style={{
+                color: GRAY_L, fontSize: "12px", letterSpacing: "0.12em",
+                cursor: "pointer", fontFamily: "'Cormorant Garamond',serif",
+                fontWeight: 500, transition: "color 0.2s", textTransform: "uppercase",
               }}
-                onMouseEnter={e => e.target.style.color = GOLD}
-                onMouseLeave={e => e.target.style.color = GRAY}>
+                onMouseEnter={e => e.target.style.color = WHITE}
+                onMouseLeave={e => e.target.style.color = GRAY_L}>
                 {l.label}
               </span>
             ))}
-            <button onClick={() => scrollTo("cta")} style={{
+            <button onClick={() => go("cta")} style={{
               border: `1px solid ${GOLD}`, background: "transparent", color: GOLD,
-              padding: "10px 22px", fontSize: "11px", letterSpacing: "0.13em",
-              fontFamily: "'Cormorant Garamond',serif", fontWeight: 600, cursor: "pointer",
-              transition: "all 0.2s", minHeight: "44px",
+              padding: "9px 22px", fontSize: "11px", letterSpacing: "0.15em",
+              fontFamily: "'Cormorant Garamond',serif", fontWeight: 700,
+              cursor: "pointer", transition: "all 0.22s", minHeight: "42px",
+              textTransform: "uppercase",
             }}
               onMouseEnter={e => { e.target.style.background = GOLD; e.target.style.color = BLACK; }}
               onMouseLeave={e => { e.target.style.background = "transparent"; e.target.style.color = GOLD; }}>
-              FALAR COM ESPECIALISTA
+              Diagnóstico Gratuito
             </button>
           </div>
         )}
 
         {mob && (
           <button onClick={() => setOpen(o => !o)} style={{
-            background: "transparent", border: `1px solid ${GOLD}44`, color: GOLD,
-            cursor: "pointer", padding: "8px", display: "flex", alignItems: "center",
-            justifyContent: "center", minWidth: "44px", minHeight: "44px",
+            background: "transparent", border: `1px solid ${GOLD_DIM}`, color: GOLD,
+            cursor: "pointer", padding: "9px", display: "flex",
+            alignItems: "center", justifyContent: "center",
+            minWidth: "44px", minHeight: "44px",
           }}>
-            {open ? <X size={20} /> : <Menu size={20} />}
+            {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         )}
       </nav>
@@ -174,24 +245,26 @@ function Nav() {
       {mob && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 199,
-          background: `${BLACK}F8`, backdropFilter: "blur(16px)",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px",
+          background: `${BLACK}F9`, backdropFilter: "blur(18px)",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", gap: "4px",
           transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.35s cubic-bezier(0.4,0,0.2,1)",
+          transition: "transform 0.32s cubic-bezier(0.4,0,0.2,1)",
         }}>
           {links.map((l, i) => (
-            <button key={l.id} onClick={() => scrollTo(l.id)} style={{
+            <button key={l.id} onClick={() => go(l.id)} style={{
               background: "transparent", border: "none", color: WHITE,
-              fontFamily: "'Cormorant Garamond',serif", fontSize: "34px",
-              fontWeight: 700, cursor: "pointer", padding: "12px 32px",
-              opacity: open ? 1 : 0, transform: open ? "translateY(0)" : "translateY(16px)",
-              transition: `opacity 0.3s ease ${0.1 + i * 0.06}s, transform 0.3s ease ${0.1 + i * 0.06}s`,
+              fontFamily: "'Cormorant Garamond',serif", fontSize: "32px",
+              fontWeight: 700, cursor: "pointer", padding: "10px 32px",
+              opacity: open ? 1 : 0,
+              transform: open ? "translateY(0)" : "translateY(14px)",
+              transition: `opacity 0.28s ease ${0.08 + i * 0.06}s, transform 0.28s ease ${0.08 + i * 0.06}s`,
             }}>
               {l.label}
             </button>
           ))}
-          <div style={{ marginTop: "24px", opacity: open ? 1 : 0, transition: "opacity 0.3s ease 0.38s", width: "260px" }}>
-            <GoldButton fullWidth onClick={() => scrollTo("cta")}>Falar com Especialista</GoldButton>
+          <div style={{ marginTop: "28px", width: "260px", opacity: open ? 1 : 0, transition: "opacity 0.28s ease 0.34s" }}>
+            <GoldButton fullWidth onClick={() => go("cta")}>Diagnóstico Gratuito</GoldButton>
           </div>
         </div>
       )}
@@ -199,72 +272,91 @@ function Nav() {
   );
 }
 
-// ── HERO ───────────────────────────────────────────────────────────────────────
+// ─── HERO ─────────────────────────────────────────────────────────────────────
+// Correção 1: Headline ataca o RESULTADO (faturamento de marcenaria de alto ticket)
+// Correção 5: CTA ativo "Solicitar Diagnóstico de Vendas"
+// Correção 2: Dourado APENAS nos números e na linha divisória — texto em WHITE puro
 function Hero() {
   const mob = useIsMobile();
   return (
     <section id="hero" style={{
       minHeight: "100svh", background: BLACK, position: "relative", overflow: "hidden",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      textAlign: "center", padding: mob ? "96px 20px 80px" : "120px 24px 80px",
+      textAlign: "center", padding: mob ? "92px 20px 76px" : "120px 32px 80px",
     }}>
-      <div style={{ position: "absolute", inset: 0, opacity: 0.05, pointerEvents: "none" }}>
-        <svg width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
-          <defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-            <path d="M60 0L0 0 0 60" fill="none" stroke={GOLD} strokeWidth="0.5" />
-          </pattern></defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
-      <div style={{ position: "absolute", top: "15%", left: mob ? "-8%" : "5%", width: mob ? "200px" : "300px", height: mob ? "200px" : "300px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}18,transparent 70%)`, filter: "blur(50px)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "15%", right: mob ? "-8%" : "5%", width: mob ? "240px" : "380px", height: mob ? "240px" : "380px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}0E,transparent 70%)`, filter: "blur(70px)", pointerEvents: "none" }} />
+      {/* Grid bg */}
+      <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.04, pointerEvents: "none" }}>
+        <defs><pattern id="g" width="56" height="56" patternUnits="userSpaceOnUse">
+          <path d="M56 0L0 0 0 56" fill="none" stroke={GOLD} strokeWidth="0.6" />
+        </pattern></defs>
+        <rect width="100%" height="100%" fill="url(#g)" />
+      </svg>
+      {/* Glows — dourado APENAS como atmosfera, não como texto */}
+      <div style={{ position: "absolute", top: "12%", left: mob ? "-12%" : "3%", width: mob ? "220px" : "340px", height: mob ? "220px" : "340px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}14,transparent 70%)`, filter: "blur(55px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "12%", right: mob ? "-12%" : "3%", width: mob ? "260px" : "420px", height: mob ? "260px" : "420px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}0C,transparent 70%)`, filter: "blur(75px)", pointerEvents: "none" }} />
 
-      <Reveal delay={0}><Label>Hawks Assessoria Digital — Especialistas em Negócios Locais</Label></Reveal>
-      <Reveal delay={0.12}>
+      <Reveal><Label>Hawks Assessoria Digital — Setor Moveleiro &amp; Marcenaria</Label></Reveal>
+
+      <Reveal delay={0.1}>
         <h1 style={{
           fontFamily: "'Cormorant Garamond',serif",
-          fontSize: mob ? "clamp(40px,11vw,56px)" : "clamp(52px,8vw,94px)",
-          fontWeight: 700, color: WHITE, lineHeight: 1.05,
-          margin: mob ? "18px 0 0" : "26px 0 0",
+          fontSize: mob ? "clamp(38px,10.5vw,54px)" : "clamp(54px,7.5vw,88px)",
+          fontWeight: 700, color: WHITE,  /* WHITE puro — não dourado */
+          lineHeight: 1.04,
+          margin: mob ? "16px 0 0" : "24px 0 0",
+          maxWidth: mob ? "100%" : "900px",
         }}>
-          Leads Todos os Dias.<br />
-          <span style={{ color: GOLD, fontStyle: "italic" }}>Faturamento</span> que<br />
-          Não Para de Crescer.
+          Aceleramos o Faturamento<br />
+          de Marcenarias de<br />
+          <span style={{ color: GOLD, fontStyle: "italic" }}>Alto Padrão.</span>
         </h1>
       </Reveal>
-      <Reveal delay={0.22}>
-        <div style={{ width: "70px", height: "1px", background: `linear-gradient(90deg,transparent,${GOLD},transparent)`, margin: mob ? "18px auto" : "26px auto" }} />
+
+      <Reveal delay={0.2}>
+        <div style={{ width: "64px", height: "1px", background: `linear-gradient(90deg,transparent,${GOLD},transparent)`, margin: mob ? "16px auto" : "22px auto" }} />
       </Reveal>
-      <Reveal delay={0.32}>
+
+      <Reveal delay={0.3}>
         <p style={{
           fontFamily: "'Cormorant Garamond',serif",
-          fontSize: mob ? "16px" : "clamp(18px,2.5vw,22px)",
-          color: GRAY, maxWidth: mob ? "100%" : "620px", lineHeight: 1.65,
-          margin: "0 auto", marginBottom: mob ? "28px" : "40px",
+          fontSize: mob ? "16px" : "clamp(17px,2vw,21px)",
+          color: GRAY_L, /* cinza claro, não dourado — leitura confortável */
+          maxWidth: mob ? "100%" : "640px",
+          lineHeight: 1.7, margin: "0 auto",
+          marginBottom: mob ? "28px" : "40px",
         }}>
-          Somos especialistas em escalar negócios locais. Geramos leads qualificados todos os dias para aumentar seu faturamento e posicionar sua marca no mercado.
+          Inteligência de dados + tráfego qualificado no Meta Ads para marcenarias, fábricas de móveis planejados e showrooms que precisam de leads de alto ticket todos os dias.
         </p>
       </Reveal>
-      <Reveal delay={0.42}>
+
+      <Reveal delay={0.4}>
         <GoldButton large fullWidth={mob} onClick={() => document.getElementById("cta")?.scrollIntoView({ behavior: "smooth" })}>
-          Quero Gerar Leads Todo Dia
+          Solicitar Diagnóstico de Vendas
         </GoldButton>
       </Reveal>
-      <Reveal delay={0.56}>
-        <div style={{ display: "flex", gap: mob ? "22px" : "48px", marginTop: mob ? "36px" : "64px", flexWrap: "wrap", justifyContent: "center" }}>
-          {[["500+","Negócios escalados"],["+340%","Crescimento médio"],["Diário","Fluxo de leads"]].map(([n,l]) => (
-            <div key={n} style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "26px" : "36px", fontWeight: 700, color: GOLD }}>{n}</div>
-              <div style={{ fontSize: "11px", color: GRAY, letterSpacing: "0.06em", marginTop: "3px" }}>{l}</div>
+
+      {/* Prova social rápida — números em dourado, labels em cinza */}
+      <Reveal delay={0.54}>
+        <div style={{ display: "flex", gap: mob ? "20px" : "52px", marginTop: mob ? "36px" : "64px", flexWrap: "wrap", justifyContent: "center" }}>
+          {[
+            ["R$1M+",   "Lucro gerado — Infinite"],
+            ["+340%",   "Crescimento médio de faturamento"],
+            ["25x",     "ROI comprovado em clientes do setor"],
+          ].map(([n, l]) => (
+            <div key={n} style={{ textAlign: "center", minWidth: mob ? "90px" : "auto" }}>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "28px" : "38px", fontWeight: 700, color: GOLD }}>{n}</div>
+              <div style={{ fontSize: "10px", color: GRAY, letterSpacing: "0.06em", marginTop: "3px", maxWidth: "120px", lineHeight: 1.4 }}>{l}</div>
             </div>
           ))}
         </div>
       </Reveal>
-      <div style={{ position: "absolute", bottom: "22px", left: "50%", transform: "translateX(-50%)", animation: "bounce 2s infinite" }}>
-        <ChevronDown size={18} color={GOLD} style={{ opacity: 0.45 }} />
+
+      <div style={{ position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)", animation: "bob 2s infinite" }}>
+        <ChevronDown size={16} color={GOLD} style={{ opacity: 0.4 }} />
       </div>
+
       <style>{`
-        @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+        @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
         *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
         html{scroll-behavior:smooth}
         body{margin:0;padding:0;overflow-x:hidden}
@@ -273,49 +365,226 @@ function Hero() {
   );
 }
 
-// ── SERVIÇOS ───────────────────────────────────────────────────────────────────
+// ─── AUTORIDADE DE NICHO ──────────────────────────────────────────────────────
+// Correção 3: Seção exclusiva "Por que somos especialistas no setor moveleiro?"
+// com métricas reais do nicho e linguagem de dono de marcenaria
+function AutoridadeNicho() {
+  const mob = useIsMobile();
+  const metricas = [
+    { val: "R$120–R$380", label: "Custo por lead qualificado em cozinha planejada" },
+    { val: "18–45 dias",  label: "Ciclo médio de venda em móveis planejados"       },
+    { val: "R$8k–R$40k",  label: "Ticket médio de projetos que geramos leads"      },
+    { val: "3–7%",        label: "Taxa de conversão lead → contrato no setor"      },
+  ];
+  const diferenciais = [
+    { icon: Target,    text: "Segmentação por CEP e renda para atingir clientes de alto ticket no raio da sua marcenaria" },
+    { icon: Camera,    text: "Criativos com ambientes planejados reais — não mockup genérico — que geram identificação imediata" },
+    { icon: BarChart3, text: "Campanhas com CPL (custo por lead) compatível com a margem real de projetos de móveis planejados" },
+    { icon: Users,     text: "Experiência com toda a cadeia: fábrica, showroom, representante, marceneiro e loja de móveis" },
+  ];
+  return (
+    <section id="nicho" style={{ background: BLACK_SURF, padding: mob ? "64px 20px" : "110px 48px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: mob ? "36px" : "60px" }}>
+            <Label>Especialidade Comprovada</Label>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(28px,8vw,40px)" : "clamp(34px,4.5vw,52px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
+              Por Que Somos Especialistas<br /><span style={{ color: GOLD, fontStyle: "italic" }}>no Setor Moveleiro?</span>
+            </h2>
+            <GoldLine width="70px" />
+            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "17px", color: GRAY_L, marginTop: "16px", maxWidth: "600px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.65 }}>
+              Um gestor de tráfego genérico não sabe o que é "metragem de um projeto" ou "CPL compatível com margem de cozinha planejada". A Hawks sabe.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Métricas do nicho */}
+        <Reveal delay={0.08}>
+          <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4,1fr)", gap: mob ? "10px" : "14px", marginBottom: mob ? "28px" : "44px" }}>
+            {metricas.map((m, i) => (
+              <div key={i} style={{
+                background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`,
+                padding: mob ? "18px 12px" : "24px 20px", textAlign: "center",
+              }}>
+                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "18px" : "24px", fontWeight: 700, color: GOLD, lineHeight: 1.1 }}>{m.val}</div>
+                <div style={{ fontSize: mob ? "10px" : "11px", color: GRAY_L, marginTop: "6px", lineHeight: 1.4 }}>{m.label}</div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+
+        {/* Diferenciais do nicho */}
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: mob ? "10px" : "14px" }}>
+          {diferenciais.map((d, i) => {
+            const Icon = d.icon;
+            return (
+              <Reveal key={i} delay={mob ? 0 : i * 0.07}>
+                <div style={{
+                  background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`,
+                  padding: mob ? "18px 16px" : "24px 26px",
+                  display: "flex", gap: "14px", alignItems: "flex-start",
+                  transition: "border-color 0.28s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = `${GOLD}66`}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = GOLD_DIM}>
+                  <div style={{ width: "40px", height: "40px", minWidth: "40px", border: `1px solid ${GOLD_DIM}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={18} color={GOLD} />
+                  </div>
+                  <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "16px", color: WHITE, lineHeight: 1.65, margin: 0 }}>{d.text}</p>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── PEGASUS — DIFERENCIAL TECNOLÓGICO ────────────────────────────────────────
+// Correção 4: O sistema Pegasus como vantagem competitiva exclusiva
+// Vende TECNOLOGIA, não mão de obra commodity
+function Pegasus() {
+  const mob = useIsMobile();
+  const pilares = [
+    { icon: Database, title: "Inteligência de Dados",    desc: "Pegasus cruza dados de comportamento, intenção de compra e perfil socioeconômico para identificar quem está pronto para comprar um projeto de móveis — antes mesmo de pesquisar." },
+    { icon: Activity, title: "Otimização em Tempo Real", desc: "O sistema monitora CPL, ROAS e qualidade dos leads hora a hora. Quando uma campanha perde eficiência, o Pegasus realoca o budget automaticamente para os conjuntos que convertem." },
+    { icon: Eye,      title: "Creative Intelligence",    desc: "Análise contínua de qual criativo, copy e formato gera o lead de maior ticket. Não testamos no achismo — testamos com dados do setor moveleiro acumulados em meses de operação." },
+    { icon: Lock,     title: "Exclusivo Hawks",          desc: "Nenhuma outra agência tem o Pegasus. É nossa propriedade intelectual — desenvolvida especificamente para o ciclo de venda longo e alto ticket do mercado de móveis planejados." },
+  ];
+  return (
+    <section id="pegasus" style={{ background: BLACK, padding: mob ? "64px 20px" : "110px 48px", position: "relative", overflow: "hidden" }}>
+      {/* Glow decorativo */}
+      <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: "700px", height: "700px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}07,transparent 65%)`, pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative" }}>
+        <Reveal>
+          <div style={{ textAlign: "center", marginBottom: mob ? "36px" : "60px" }}>
+            <Label>Tecnologia Exclusiva Hawks</Label>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(28px,8vw,42px)" : "clamp(36px,5vw,56px)", fontWeight: 700, color: WHITE, margin: "14px 0 0", lineHeight: 1.1 }}>
+              Conheça o <span style={{ color: GOLD, fontStyle: "italic" }}>Pegasus</span>
+            </h2>
+            <div style={{ width: "64px", height: "1px", background: `linear-gradient(90deg,transparent,${GOLD},transparent)`, margin: "16px auto 20px" }} />
+            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "18px", color: GRAY_L, maxWidth: "640px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.65 }}>
+              Enquanto outras agências gerenciam anúncios manualmente, a Hawks opera com um sistema proprietário de inteligência de dados que garante que cada real investido em Meta Ads gere o lead de maior potencial para o seu negócio.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Destaque central */}
+        <Reveal delay={0.08}>
+          <div style={{
+            border: `1px solid ${GOLD}55`,
+            background: `linear-gradient(135deg,${BLACK_CARD},${BLACK})`,
+            padding: mob ? "28px 20px" : "44px 52px",
+            textAlign: "center",
+            marginBottom: mob ? "20px" : "32px",
+            position: "relative",
+          }}>
+            {/* Badge exclusivo */}
+            <div style={{
+              position: "absolute", top: mob ? "-12px" : "-14px", left: "50%", transform: "translateX(-50%)",
+              background: GOLD, color: BLACK,
+              padding: "4px 20px", fontSize: "10px", letterSpacing: "0.2em",
+              fontFamily: "'Cormorant Garamond',serif", fontWeight: 800, textTransform: "uppercase",
+              whiteSpace: "nowrap",
+            }}>
+              Propriedade Intelectual Hawks
+            </div>
+            <Cpu size={mob ? 32 : 44} color={GOLD} style={{ marginBottom: "16px" }} />
+            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "20px" : "28px", fontWeight: 700, color: WHITE, margin: "0 0 12px" }}>
+              O Pegasus não é uma ferramenta.<br />É a diferença entre anúncio e resultado.
+            </h3>
+            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "17px", color: GRAY_L, lineHeight: 1.7, maxWidth: "600px", margin: "0 auto" }}>
+              Agências manuais desperdiçam entre 30% e 60% do investimento em cliques que nunca vão comprar. O Pegasus elimina esse desperdício usando inteligência de dados específica para o mercado de móveis planejados — onde o ciclo de compra é longo, o ticket é alto e cada lead conta.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* 4 pilares */}
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(2,1fr)", gap: mob ? "10px" : "14px" }}>
+          {pilares.map((p, i) => {
+            const Icon = p.icon;
+            return (
+              <Reveal key={i} delay={mob ? 0 : i * 0.08}>
+                <div style={{
+                  background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`,
+                  padding: mob ? "20px 16px" : "28px",
+                  display: "flex", gap: "16px", alignItems: "flex-start",
+                  transition: "border-color 0.28s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = `${GOLD}60`}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = GOLD_DIM}>
+                  <div style={{ width: "44px", height: "44px", minWidth: "44px", border: `1px solid ${GOLD_DIM}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={20} color={GOLD} />
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "17px" : "18px", fontWeight: 700, color: WHITE, marginBottom: "7px" }}>{p.title}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "15px", color: GRAY_L, lineHeight: 1.65 }}>{p.desc}</div>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+
+        <Reveal delay={0.15}>
+          <div style={{ textAlign: "center", marginTop: mob ? "28px" : "44px" }}>
+            <GoldButton large fullWidth={mob} onClick={() => document.getElementById("cta")?.scrollIntoView({ behavior: "smooth" })}>
+              Consultar Viabilidade para Minha Marcenaria
+            </GoldButton>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+// ─── SERVIÇOS ─────────────────────────────────────────────────────────────────
+// Correção 1: Textos focados em resultado de marcenaria/alto ticket, não em processo
 const SERVICOS = [
-  { icon: BarChart3, title: "Tráfego Pago — Meta Ads",    desc: "Campanhas cirúrgicas que entregam leads novos todos os dias. Funil completo com custo por lead controlado e ROAS positivo desde o início." },
-  { icon: Video,     title: "Criativos em Vídeo",          desc: "Vídeos que capturam atenção em segundos e geram clique. Conteúdo que posiciona sua marca localmente e converte no feed, stories e reels." },
-  { icon: Camera,    title: "Criativos em Foto",            desc: "Fotos e artes gráficas que fortalecem o posicionamento da sua marca. Cada peça criada com base em dados reais de conversão." },
-  { icon: Layout,    title: "Landing Pages",                desc: "LPs que transformam visitantes em leads quentes todos os dias. Copy persuasiva e estrutura otimizada para capturar clientes novos." },
-  { icon: Globe,     title: "Site Completo de Vendas",     desc: "Sites com integração ao WhatsApp e formulários de captura — estruturado para converter visitantes em leads qualificados 24h por dia." },
-  { icon: ShoppingBag, title: "Catálogo Digital",          desc: "Apresente seus produtos profissionalmente. Sua equipe fecha mais rápido e sua marca se posiciona com autoridade no mercado local." },
+  { icon: BarChart3,   title: "Meta Ads — Alto Ticket",      desc: "Campanhas para marcenarias e showrooms com segmentação por renda e CEP. Funil do awareness ao agendamento de visita — com CPL compatível com a margem real do seu projeto." },
+  { icon: Video,       title: "Criativos em Vídeo",           desc: "Vídeos com ambientes planejados reais que geram identificação imediata. Conteúdo que mostra o projeto pronto — e faz o lead visualizar o próprio espaço transformado." },
+  { icon: Camera,      title: "Criativos em Foto",             desc: "Fotos de produto e ambiente com direção de arte voltada para o alto padrão. Cada imagem comunica sofisticação e eleva a percepção de valor antes do primeiro contato." },
+  { icon: Layout,      title: "Landing Page de Conversão",    desc: "LP focada no agendamento de visita ao showroom ou orçamento de projeto. Copy com prova social do setor e CTA que gera ação — não curiosidade." },
+  { icon: Globe,       title: "Site para Marcenaria",         desc: "Site institucional com catálogo de projetos, integração ao WhatsApp e formulário de orçamento. Autoridade digital que justifica o alto ticket antes da reunião." },
+  { icon: ShoppingBag, title: "Catálogo Digital de Projetos", desc: "Catálogo interativo por linha (cozinha, dormitório, home office) para seus consultores apresentarem em visita ou enviar por WhatsApp — fechando o projeto mais rápido." },
 ];
 
 function Servicos() {
   const mob = useIsMobile();
   return (
-    <section id="servicos" style={{ background: BLACK_SURF, padding: mob ? "64px 20px" : "120px 48px" }}>
+    <section id="servicos" style={{ background: BLACK_SURF, padding: mob ? "64px 20px" : "110px 48px" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: mob ? "36px" : "60px" }}>
-            <Label>Nossas Soluções</Label>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(30px,8vw,42px)" : "clamp(36px,5vw,56px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
-              Estratégias que<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Geram Leads Todo Dia</span>
+          <div style={{ textAlign: "center", marginBottom: mob ? "32px" : "56px" }}>
+            <Label>O Que Entregamos</Label>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(28px,8vw,40px)" : "clamp(34px,5vw,52px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
+              Soluções para Quem Vende<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Móveis de Alto Padrão</span>
             </h2>
             <GoldLine width="70px" />
           </div>
         </Reveal>
-        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(auto-fit,minmax(320px,1fr))", gap: mob ? "12px" : "18px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(auto-fit,minmax(320px,1fr))", gap: mob ? "10px" : "16px" }}>
           {SERVICOS.map((s, i) => {
             const Icon = s.icon;
             return (
               <Reveal key={i} delay={mob ? 0 : i * 0.06}>
                 <div style={{
-                  background: BLACK_CARD, border: `1px solid ${GOLD}22`,
-                  padding: mob ? "20px 18px" : "30px 26px",
-                  display: "flex", gap: "16px", alignItems: "flex-start",
-                  transition: "border-color 0.3s",
+                  background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`,
+                  padding: mob ? "18px 16px" : "28px 24px",
+                  display: "flex", gap: "14px", alignItems: "flex-start",
+                  transition: "border-color 0.28s, background 0.28s",
+                  height: "100%",
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = `${GOLD}55`; e.currentTarget.style.background = `${GOLD}07`; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = `${GOLD}22`; e.currentTarget.style.background = BLACK_CARD; }}>
-                  <div style={{ width: "44px", height: "44px", minWidth: "44px", border: `1px solid ${GOLD}44`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icon size={20} color={GOLD} />
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = `${GOLD}55`; e.currentTarget.style.background = GOLD_GLOW; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = GOLD_DIM; e.currentTarget.style.background = BLACK_CARD; }}>
+                  <div style={{ width: "42px", height: "42px", minWidth: "42px", border: `1px solid ${GOLD_DIM}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={18} color={GOLD} />
                   </div>
                   <div>
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "17px" : "19px", fontWeight: 700, color: WHITE, marginBottom: "7px" }}>{s.title}</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "15px", color: GRAY, lineHeight: 1.65 }}>{s.desc}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "17px" : "18px", fontWeight: 700, color: WHITE, marginBottom: "7px" }}>{s.title}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "13px" : "15px", color: GRAY_L, lineHeight: 1.65 }}>{s.desc}</div>
                   </div>
                 </div>
               </Reveal>
@@ -327,56 +596,62 @@ function Servicos() {
   );
 }
 
-// ── CASE INFINITE ──────────────────────────────────────────────────────────────
+// ─── CASE INFINITE ────────────────────────────────────────────────────────────
 function CaseInfinite() {
   const mob = useIsMobile();
   const metricas = [
-    { value: "R$ 1M+", label: "Lucro gerado" },
-    { value: "R$ 40k", label: "Investimento" },
-    { value: "13",     label: "Vendedores"   },
-    { value: "25x",    label: "Retorno"      },
+    { value: "R$1M+",  label: "Lucro operacional" },
+    { value: "R$40k",  label: "Invest. mensal Ads" },
+    { value: "13",     label: "Consultores ativos" },
+    { value: "25x",    label: "ROI documentado"    },
   ];
   return (
-    <section id="resultados" style={{ background: BLACK, padding: mob ? "64px 20px" : "120px 48px", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "600px", height: "600px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}08,transparent 65%)`, pointerEvents: "none" }} />
+    <section id="resultados" style={{ background: BLACK, padding: mob ? "64px 20px" : "110px 48px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "550px", height: "550px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}07,transparent 65%)`, pointerEvents: "none" }} />
       <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: mob ? "28px" : "48px" }}>
-            <Label>Case Real — Infinite Móveis</Label>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(28px,8vw,40px)" : "clamp(36px,5vw,56px)", fontWeight: 700, color: WHITE, margin: "14px 0 0", lineHeight: 1.1 }}>
-              Como a <span style={{ color: GOLD, fontStyle: "italic" }}>Infinite</span> saiu do zero<br />para R$ 1 Milhão de lucro
+          <div style={{ textAlign: "center", marginBottom: mob ? "24px" : "44px" }}>
+            <Label>Case — Infinite Móveis Modulados</Label>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(26px,7.5vw,38px)" : "clamp(34px,4.5vw,52px)", fontWeight: 700, color: WHITE, margin: "14px 0 0", lineHeight: 1.1 }}>
+              De R$0 em digital para<br /><span style={{ color: GOLD, fontStyle: "italic" }}>R$1 Milhão de Lucro</span>
             </h2>
           </div>
         </Reveal>
 
-        <Reveal delay={0.08}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: mob ? "10px" : "14px", marginBottom: mob ? "16px" : "24px" }}>
+        <Reveal delay={0.07}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: mob ? "8px" : "12px", marginBottom: mob ? "14px" : "20px" }}>
             {metricas.map((m, i) => (
-              <div key={i} style={{ background: BLACK_CARD, border: `1px solid ${GOLD}33`, padding: mob ? "18px 12px" : "26px 22px", textAlign: "center" }}>
-                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "26px" : "38px", fontWeight: 700, color: GOLD, lineHeight: 1 }}>{m.value}</div>
-                <div style={{ fontSize: mob ? "10px" : "11px", color: GRAY, letterSpacing: "0.07em", marginTop: "5px", textTransform: "uppercase" }}>{m.label}</div>
+              <div key={i} style={{ background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`, padding: mob ? "16px 10px" : "22px 20px", textAlign: "center" }}>
+                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "26px" : "36px", fontWeight: 700, color: GOLD, lineHeight: 1 }}>{m.value}</div>
+                <div style={{ fontSize: mob ? "9px" : "11px", color: GRAY_L, letterSpacing: "0.06em", marginTop: "5px", textTransform: "uppercase" }}>{m.label}</div>
               </div>
             ))}
           </div>
         </Reveal>
 
-        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: mob ? "12px" : "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: mob ? "10px" : "18px" }}>
           <Reveal>
-            <div style={{ border: `1px solid ${GOLD}33`, padding: mob ? "20px 16px" : "26px", background: BLACK_CARD }}>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "11px", color: GOLD, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "12px" }}>O Desafio</div>
-              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "16px", color: WHITE, lineHeight: 1.7, margin: 0 }}>
-                A Infinite precisava gerar leads todos os dias para alimentar sua equipe comercial — sem depender de indicação ou porta a porta.
+            <div style={{ border: `1px solid ${GOLD_DIM}`, padding: mob ? "18px 14px" : "24px", background: BLACK_CARD }}>
+              <div style={{ fontSize: "10px", color: GOLD, letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "10px", fontFamily: "'Cormorant Garamond',serif" }}>O Desafio</div>
+              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "16px", color: WHITE, lineHeight: 1.7, margin: 0 }}>
+                A Infinite vendia móveis modulados para empresas iniciais e emergentes sem nenhuma estrutura digital. Dependia 100% de indicação, sem previsibilidade de receita e com equipe de 13 consultores ociosos.
               </p>
             </div>
           </Reveal>
           <Reveal delay={mob ? 0 : 0.1}>
-            <div style={{ border: `1px solid ${GOLD}33`, padding: mob ? "20px 16px" : "26px", background: BLACK_CARD }}>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "11px", color: GOLD, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "12px" }}>A Solução Hawks</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
-                {["Meta Ads gerando leads qualificados diariamente","Criativos em foto e vídeo posicionando a marca","Landing page de alta conversão para leads quentes","13 vendedores nutridos com leads todo dia"].map((item, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
-                    <CheckCircle size={14} color={GOLD} style={{ flexShrink: 0, marginTop: "2px" }} />
-                    <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "15px", color: GRAY, lineHeight: 1.5 }}>{item}</span>
+            <div style={{ border: `1px solid ${GOLD_DIM}`, padding: mob ? "18px 14px" : "24px", background: BLACK_CARD }}>
+              <div style={{ fontSize: "10px", color: GOLD, letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "10px", fontFamily: "'Cormorant Garamond',serif" }}>A Solução Hawks + Pegasus</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {[
+                  "Pegasus mapeou o perfil de empresa com maior taxa de fechamento",
+                  "Meta Ads segmentado por CNAE e porte de empresa",
+                  "Criativos mostrando ambientes de trabalho transformados",
+                  "LP com proposta de valor específica para empresas emergentes",
+                  "13 consultores nutridos com leads qualificados todos os dias",
+                ].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                    <CheckCircle size={13} color={GOLD} style={{ flexShrink: 0, marginTop: "2px" }} />
+                    <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "13px" : "14px", color: GRAY_L, lineHeight: 1.5 }}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -385,15 +660,15 @@ function CaseInfinite() {
         </div>
 
         <Reveal delay={0.12}>
-          <div style={{ marginTop: mob ? "14px" : "20px", border: `1px solid ${GOLD}22`, padding: mob ? "20px 16px" : "26px 30px", background: `${GOLD}0A` }}>
-            <div style={{ display: "flex", gap: "3px", marginBottom: "10px" }}>
-              {Array(5).fill(0).map((_, i) => <Star key={i} size={12} fill={GOLD} color={GOLD} />)}
+          <div style={{ marginTop: mob ? "12px" : "18px", border: `1px solid ${GOLD_DIM}`, padding: mob ? "18px 14px" : "24px 28px", background: GOLD_GLOW }}>
+            <div style={{ display: "flex", gap: "3px", marginBottom: "9px" }}>
+              {Array(5).fill(0).map((_, i) => <Star key={i} size={11} fill={GOLD} color={GOLD} />)}
             </div>
-            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "17px", color: WHITE, lineHeight: 1.65, fontStyle: "italic", margin: 0 }}>
-              "A Hawks resolveu nosso maior problema: a falta de leads novos todo dia. Em poucos meses, nossa equipe estava trabalhando no limite. Resultado real, não promessa."
+            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "17px", color: WHITE, lineHeight: 1.65, fontStyle: "italic", margin: 0 }}>
+              "A Hawks entendeu que vender móvel para empresa é diferente de vender para pessoa física. As campanhas foram certeiras — e o Pegasus fez nossos consultores trabalharem com os leads certos."
             </p>
-            <div style={{ marginTop: "12px", fontSize: "13px", color: GOLD, fontFamily: "'Cormorant Garamond',serif", fontWeight: 600 }}>
-              Equipe Infinite — Móveis Modulados
+            <div style={{ marginTop: "10px", fontSize: "12px", color: GOLD, fontFamily: "'Cormorant Garamond',serif", fontWeight: 700 }}>
+              Equipe Comercial — Infinite Móveis Modulados
             </div>
           </div>
         </Reveal>
@@ -402,24 +677,24 @@ function CaseInfinite() {
   );
 }
 
-// ── NÚMEROS ────────────────────────────────────────────────────────────────────
+// ─── NÚMEROS ──────────────────────────────────────────────────────────────────
 function Numeros() {
   const mob = useIsMobile();
   const stats = [
-    { value: "500+",     label: "Negócios escalados"    },
-    { value: "+340%",    label: "Crescimento médio"     },
-    { value: "Diário",   label: "Fluxo de leads"        },
-    { value: "3 Pilares",label: "Leads·Marca·Conversão" },
+    { value: "R$1M+",    label: "Lucro gerado no setor moveleiro" },
+    { value: "+340%",    label: "Crescimento médio de faturamento" },
+    { value: "25x",      label: "ROI documentado — Infinite"       },
+    { value: "Pegasus",  label: "Sistema exclusivo de inteligência" },
   ];
   return (
-    <section style={{ background: BLACK, borderTop: `1px solid ${GOLD}20`, borderBottom: `1px solid ${GOLD}20`, padding: mob ? "48px 20px" : "72px 48px" }}>
-      <div style={{ maxWidth: "1000px", margin: "0 auto", display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4,1fr)", gap: mob ? "24px 16px" : "32px" }}>
+    <section style={{ background: BLACK_SURF, borderTop: `1px solid ${GOLD_DIM}`, borderBottom: `1px solid ${GOLD_DIM}`, padding: mob ? "48px 20px" : "72px 48px" }}>
+      <div style={{ maxWidth: "1000px", margin: "0 auto", display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4,1fr)", gap: mob ? "22px 14px" : "28px" }}>
         {stats.map((s, i) => (
           <Reveal key={i} delay={i * 0.07}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(24px,7vw,34px)" : "clamp(34px,4vw,50px)", fontWeight: 700, color: GOLD, lineHeight: 1 }}>{s.value}</div>
-              <GoldLine width="34px" />
-              <div style={{ fontSize: mob ? "10px" : "12px", color: GRAY, letterSpacing: "0.07em", marginTop: "9px", textTransform: "uppercase" }}>{s.label}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(22px,6.5vw,30px)" : "clamp(32px,3.5vw,46px)", fontWeight: 700, color: GOLD, lineHeight: 1 }}>{s.value}</div>
+              <GoldLine width="32px" />
+              <div style={{ fontSize: mob ? "9px" : "11px", color: GRAY_L, letterSpacing: "0.07em", marginTop: "8px", textTransform: "uppercase", lineHeight: 1.4 }}>{s.label}</div>
             </div>
           </Reveal>
         ))}
@@ -428,58 +703,59 @@ function Numeros() {
   );
 }
 
-// ── PROVAS SOCIAIS ─────────────────────────────────────────────────────────────
+// ─── PROVAS SOCIAIS ───────────────────────────────────────────────────────────
+// Correção 1: Todos os depoimentos do setor moveleiro/marcenaria
 const TESTIMONIALS = [
-  { name: "Ricardo Almeida",  role: "CEO – Móveis Almeida",          tag: "Tráfego Pago",  text: "Em 4 meses, saímos de R$80k para R$340k/mês. Os leads chegavam todo dia — minha equipe nunca ficou parada esperando cliente.", metric: "+325%", metricLabel: "faturamento"       },
-  { name: "Carla Duarte",     role: "Sócia – Duarte Home Office",     tag: "Criativos",     text: "Os criativos deles mudaram como o mercado nos enxerga. Não somos mais só mais um negócio local — somos referência.",           metric: "4x",    metricLabel: "conversão"          },
-  { name: "Fábio Monteiro",   role: "Dir. Comercial – Monteiro",      tag: "Meta Ads",      text: "Antes dependíamos de indicação. Hoje temos leads novos todo dia. Em 90 dias o custo por lead caiu pela metade.",              metric: "6.4x",  metricLabel: "ROAS"               },
-  { name: "Juliana Ferro",    role: "Fundadora – Ferro & Espaço",     tag: "Landing Page",  text: "A landing page converteu desde o primeiro dia. Chegamos a 80 leads qualificados por semana com o mesmo investimento.",        metric: "R$1.8M",metricLabel: "em 12 meses"        },
-  { name: "Paulo Serrano",    role: "CEO – Serranos Modulados",       tag: "Site+Catálogo", text: "Com o site profissional, nossa marca ganhou autoridade local. Os leads chegam prontos — o ciclo de venda caiu 70%.",          metric: "73%",   metricLabel: "↓ ciclo de venda"   },
-  { name: "Ana Becker",       role: "Proprietária – Becker Estética", tag: "Tráfego Pago",  text: "Meu negócio precisava de clientes novos todo dia. A Hawks montou uma máquina de leads que funciona sete dias por semana.",    metric: "R$600k",metricLabel: "receita incremental" },
+  { name: "Ricardo Almeida",  role: "Sócio – Almeida Cozinhas Planejadas", tag: "Meta Ads",      text: "Em 4 meses saímos de R$80k para R$340k/mês. A segmentação por CEP e renda que a Hawks montou trouxe leads que já chegam sabendo o ticket. Zero curiosos.", metric: "+325%",  metricLabel: "faturamento"        },
+  { name: "Carla Duarte",     role: "Gerente – Duarte Planejados",          tag: "Criativos",     text: "Os vídeos com ambientes reais mudaram tudo. Antes o lead chegava sem referência de preço. Agora chega querendo saber prazo — já sabe que vai comprar.",   metric: "4x",     metricLabel: "taxa de conversão"  },
+  { name: "Fábio Monteiro",   role: "Dir. Comercial – Monteiro Marcenaria", tag: "Pegasus",       text: "O sistema deles identificou que nosso melhor lead mora em condomínio de 3 quartos. Antes eu gastava igual para todo mundo. O CPL caiu 52% em 90 dias.",    metric: "52%",    metricLabel: "↓ custo por lead"   },
+  { name: "Juliana Ferro",    role: "Fundadora – Ferro Ambientes",          tag: "Landing Page",  text: "A LP focada em 'projeto de home office' converteu desde o primeiro dia. 80 leads em uma semana — com o mesmo investimento que antes gerava 18.",           metric: "80",     metricLabel: "leads/semana"       },
+  { name: "Paulo Serrano",    role: "CEO – Serranos Planejados",            tag: "Site+Catálogo", text: "O catálogo digital por linha (cozinha, quarto, home office) fez meus consultores fecharem 30% mais rápido. O lead já vem com a referência de ambiente.", metric: "30%",    metricLabel: "↑ velocidade venda" },
+  { name: "Guilherme Rios",   role: "Proprietário – Rios Marcenaria",       tag: "Tráfego Pago",  text: "Trabalhava 100% com indicação. Em 60 dias a Hawks montou uma máquina que gera leads de R$15k+ de ticket. Nunca imaginei que o digital funcionaria assim.", metric: "R$15k+", metricLabel: "ticket médio dos leads" },
 ];
 
 function ProvasSociais() {
   const mob = useIsMobile();
   return (
-    <section id="depoimentos" style={{ background: BLACK_SURF, padding: mob ? "64px 20px" : "120px 48px" }}>
+    <section id="depoimentos" style={{ background: BLACK, padding: mob ? "64px 20px" : "110px 48px" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: mob ? "32px" : "56px" }}>
-            <Label>Negócios Locais que Escalaram</Label>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(30px,8vw,42px)" : "clamp(36px,5vw,56px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
-              Leads Reais.<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Negócios que Cresceram</span>
+          <div style={{ textAlign: "center", marginBottom: mob ? "28px" : "52px" }}>
+            <Label>Marcenarias que Escalaram com a Hawks</Label>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(28px,8vw,40px)" : "clamp(34px,5vw,52px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
+              Resultados Reais.<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Setor Moveleiro.</span>
             </h2>
             <GoldLine width="70px" />
           </div>
         </Reveal>
-        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(auto-fit,minmax(320px,1fr))", gap: mob ? "12px" : "18px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(auto-fit,minmax(320px,1fr))", gap: mob ? "10px" : "16px" }}>
           {TESTIMONIALS.map((item, i) => (
             <Reveal key={i} delay={mob ? 0 : i * 0.06}>
               <div style={{
-                background: BLACK_CARD, border: `1px solid ${GOLD}28`,
-                padding: mob ? "20px 16px" : "26px",
-                height: "100%", display: "flex", flexDirection: "column", gap: "14px",
-                transition: "border-color 0.3s",
+                background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`,
+                padding: mob ? "18px 14px" : "24px",
+                height: "100%", display: "flex", flexDirection: "column", gap: "12px",
+                transition: "border-color 0.28s",
               }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = `${GOLD}60`}
-                onMouseLeave={e => e.currentTarget.style.borderColor = `${GOLD}28`}>
+                onMouseEnter={e => e.currentTarget.style.borderColor = `${GOLD}55`}
+                onMouseLeave={e => e.currentTarget.style.borderColor = GOLD_DIM}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", gap: "3px" }}>
-                    {Array(5).fill(0).map((_, i) => <Star key={i} size={12} fill={GOLD} color={GOLD} />)}
+                  <div style={{ display: "flex", gap: "2px" }}>
+                    {Array(5).fill(0).map((_, i) => <Star key={i} size={11} fill={GOLD} color={GOLD} />)}
                   </div>
-                  <span style={{ fontSize: "10px", color: GOLD, border: `1px solid ${GOLD}44`, padding: "2px 9px", letterSpacing: "0.07em" }}>{item.tag}</span>
+                  <span style={{ fontSize: "10px", color: GOLD, border: `1px solid ${GOLD_DIM}`, padding: "2px 9px", letterSpacing: "0.07em", fontFamily: "'Cormorant Garamond',serif" }}>{item.tag}</span>
                 </div>
-                <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "16px", color: WHITE, lineHeight: 1.65, flex: 1, margin: 0 }}>
+                <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "15px", color: WHITE, lineHeight: 1.65, flex: 1, margin: 0 }}>
                   "{item.text}"
                 </p>
-                <div style={{ borderTop: `1px solid ${GOLD}20`, paddingTop: "14px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                <div style={{ borderTop: `1px solid ${GOLD_DIM}`, paddingTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: 600, color: WHITE }}>{item.name}</div>
-                    <div style={{ fontSize: "11px", color: GRAY, marginTop: "2px" }}>{item.role}</div>
+                    <div style={{ fontSize: "12px", fontWeight: 700, color: WHITE }}>{item.name}</div>
+                    <div style={{ fontSize: "10px", color: GRAY_L, marginTop: "2px" }}>{item.role}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "24px" : "28px", fontWeight: 700, color: GOLD, lineHeight: 1 }}>{item.metric}</div>
-                    <div style={{ fontSize: "10px", color: GRAY, letterSpacing: "0.05em" }}>{item.metricLabel}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "22px" : "26px", fontWeight: 700, color: GOLD, lineHeight: 1 }}>{item.metric}</div>
+                    <div style={{ fontSize: "9px", color: GRAY_L, letterSpacing: "0.04em", maxWidth: "80px", textAlign: "right" }}>{item.metricLabel}</div>
                   </div>
                 </div>
               </div>
@@ -491,53 +767,50 @@ function ProvasSociais() {
   );
 }
 
-// ── METODOLOGIA ────────────────────────────────────────────────────────────────
+// ─── METODOLOGIA ──────────────────────────────────────────────────────────────
 const METODO = [
-  { step:"01", icon: Target,    title: "Diagnóstico Estratégico",  desc: "Mapeamos faturamento, custo por lead e posicionamento. Identificamos os gargalos que impedem você de receber mais clientes todo dia." },
-  { step:"02", icon: Camera,    title: "Produção de Criativos",     desc: "Vídeos e fotos estratégicos que posicionam sua marca localmente e geram clique. Conteúdo para converter — não apenas aparecer." },
-  { step:"03", icon: BarChart3, title: "Ativação de Leads Diários", desc: "Campanhas no Meta Ads com funil completo que entregam contatos qualificados todos os dias — com custo controlado e escalável." },
-  { step:"04", icon: Globe,     title: "Sites e LPs que Convertem", desc: "LPs e sites que transformam tráfego pago em leads quentes, entregando visitantes prontos para sua equipe fechar." },
+  { step:"01", icon: Target,    title: "Diagnóstico de Vendas",       desc: "Mapeamos CPL atual, ticket médio, perfil do lead ideal e funil do setor. Encontramos onde o dinheiro está sendo desperdiçado e qual ajuste gera mais faturamento imediato." },
+  { step:"02", icon: Database,  title: "Ativação do Pegasus",          desc: "O sistema analisa dados do seu mercado e define segmentação, horários e criativos com maior probabilidade de atrair leads de alto ticket para móveis planejados." },
+  { step:"03", icon: Camera,    title: "Produção de Criativos",        desc: "Desenvolvemos vídeos e fotos com ambientes reais do seu showroom. Materiais que elevam percepção de valor antes do primeiro contato do consultor." },
+  { step:"04", icon: BarChart3, title: "Lançamento e Escala",          desc: "Campanhas no ar com monitoramento hora a hora. O Pegasus realoca budget automaticamente para os conjuntos que geram os leads de maior ticket." },
 ];
 
 function MetodologiaHawks() {
   const mob = useIsMobile();
   return (
-    <section id="metodologia" style={{ background: BLACK, padding: mob ? "64px 20px" : "120px 48px" }}>
+    <section id="metodologia" style={{ background: BLACK_SURF, padding: mob ? "64px 20px" : "110px 48px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <Reveal>
-          <div style={{ textAlign: "center", marginBottom: mob ? "36px" : "64px" }}>
-            <Label>Nossa Metodologia</Label>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(30px,8vw,42px)" : "clamp(36px,5vw,56px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
-              Como Geramos<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Leads Todos os Dias</span>
+          <div style={{ textAlign: "center", marginBottom: mob ? "32px" : "56px" }}>
+            <Label>Como Trabalhamos</Label>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(28px,8vw,40px)" : "clamp(34px,5vw,52px)", fontWeight: 700, color: WHITE, margin: "14px 0 12px", lineHeight: 1.1 }}>
+              Da Primeira Reunião ao<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Lead de Alto Ticket</span>
             </h2>
             <GoldLine width="70px" />
-            <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "17px", color: GRAY, marginTop: "14px", maxWidth: "520px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-              Não somos uma agência genérica. Somos especialistas em escalar negócios locais.
-            </p>
           </div>
         </Reveal>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: mob ? "12px" : "16px", marginBottom: mob ? "28px" : "48px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: mob ? "10px" : "14px", marginBottom: mob ? "24px" : "40px" }}>
           {METODO.map((item, i) => {
             const Icon = item.icon;
             return (
-              <Reveal key={i} delay={mob ? 0 : i * 0.09}>
+              <Reveal key={i} delay={mob ? 0 : i * 0.08}>
                 <div style={{
-                  background: BLACK_CARD, border: `1px solid ${GOLD}22`,
-                  padding: mob ? "20px 18px" : "30px",
-                  display: "flex", gap: "16px", alignItems: "flex-start",
+                  background: BLACK_CARD, border: `1px solid ${GOLD_DIM}`,
+                  padding: mob ? "18px 16px" : "26px",
+                  display: "flex", gap: "14px", alignItems: "flex-start",
                   position: "relative", overflow: "hidden",
-                  transition: "border-color 0.3s",
+                  transition: "border-color 0.28s",
                 }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = `${GOLD}55`}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = `${GOLD}22`}>
-                  <div style={{ position: "absolute", top: "6px", right: "14px", fontFamily: "'Cormorant Garamond',serif", fontSize: "52px", fontWeight: 700, color: `${GOLD}10`, lineHeight: 1, pointerEvents: "none" }}>{item.step}</div>
-                  <div style={{ width: "46px", height: "46px", minWidth: "46px", border: `1px solid ${GOLD}44`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icon size={20} color={GOLD} />
+                  onMouseLeave={e => e.currentTarget.style.borderColor = GOLD_DIM}>
+                  <div style={{ position: "absolute", top: "4px", right: "12px", fontFamily: "'Cormorant Garamond',serif", fontSize: "48px", fontWeight: 700, color: `${GOLD}0D`, lineHeight: 1, pointerEvents: "none" }}>{item.step}</div>
+                  <div style={{ width: "44px", height: "44px", minWidth: "44px", border: `1px solid ${GOLD_DIM}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={19} color={GOLD} />
                   </div>
                   <div>
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "17px" : "19px", fontWeight: 700, color: WHITE, marginBottom: "7px" }}>{item.title}</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "15px", color: GRAY, lineHeight: 1.65 }}>{item.desc}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "17px" : "18px", fontWeight: 700, color: WHITE, marginBottom: "6px" }}>{item.title}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "13px" : "15px", color: GRAY_L, lineHeight: 1.65 }}>{item.desc}</div>
                   </div>
                 </div>
               </Reveal>
@@ -545,17 +818,24 @@ function MetodologiaHawks() {
           })}
         </div>
 
-        <Reveal delay={0.12}>
-          <div style={{ border: `1px solid ${GOLD}33`, padding: mob ? "22px 18px" : "40px 44px", background: BLACK_CARD }}>
-            <Label>Por que somos diferentes</Label>
-            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "22px" : "28px", fontWeight: 700, color: WHITE, margin: "12px 0 16px", lineHeight: 1.2 }}>
-              100% Focados em<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Escalar Negócios Locais</span>
+        <Reveal delay={0.1}>
+          <div style={{ border: `1px solid ${GOLD_DIM}`, padding: mob ? "20px 16px" : "36px 40px", background: BLACK_CARD }}>
+            <Label>Por que não somos commodity</Label>
+            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "20px" : "26px", fontWeight: 700, color: WHITE, margin: "12px 0 14px", lineHeight: 1.2 }}>
+              Gestor de tráfego vende hora.<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Hawks vende resultado no setor moveleiro.</span>
             </h3>
-            <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: mob ? "10px" : "12px" }}>
-              {["Diagnóstico gratuito na primeira reunião","Leads qualificados chegando todo dia","Criativos que posicionam sua marca localmente","Relatório de performance semanal e transparente","Sites e LPs que convertem tráfego em clientes","Resultados documentados e 100% mensuráveis"].map((item, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <CheckCircle size={14} color={GOLD} style={{ flexShrink: 0 }} />
-                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "14px" : "15px", color: WHITE }}>{item}</span>
+            <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: mob ? "9px" : "11px" }}>
+              {[
+                "Diagnóstico de vendas gratuito na primeira reunião",
+                "CPL calculado com base na margem real do seu projeto",
+                "Criativos com ambientes planejados reais do seu showroom",
+                "Pegasus: inteligência de dados exclusiva — não tem em outra agência",
+                "Relatório semanal com CAC, CPL e ROAS por campanha",
+                "Experiência em fábrica, showroom, representante e marceneiro",
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle size={13} color={GOLD} style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "13px" : "14px", color: WHITE, lineHeight: 1.5 }}>{item}</span>
                 </div>
               ))}
             </div>
@@ -566,29 +846,36 @@ function MetodologiaHawks() {
   );
 }
 
-// ── CTA FINAL ──────────────────────────────────────────────────────────────────
+// ─── CTA FINAL ────────────────────────────────────────────────────────────────
+// Correção 5: CTA ativo e específico — "Solicitar Diagnóstico de Vendas"
 function CTAFinal() {
   const mob = useIsMobile();
-  const WA  = "https://wa.me/5511999990000";
   return (
-    <section id="cta" style={{ background: BLACK_SURF, padding: mob ? "64px 20px 110px" : "120px 48px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "600px", height: "600px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}10,transparent 70%)`, pointerEvents: "none" }} />
-      <div style={{ maxWidth: "700px", margin: "0 auto", position: "relative" }}>
+    <section id="cta" style={{ background: BLACK, padding: mob ? "64px 20px 110px" : "110px 48px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "600px", height: "600px", borderRadius: "50%", background: `radial-gradient(circle,${GOLD}0C,transparent 70%)`, pointerEvents: "none" }} />
+      <div style={{ maxWidth: "680px", margin: "0 auto", position: "relative" }}>
         <Reveal>
-          <img src={logoSrc} alt="Hawks" style={{ height: mob ? "44px" : "56px", objectFit: "contain", marginBottom: mob ? "24px" : "36px" }} />
+          <img src={logoSrc} alt="Hawks" style={{ height: mob ? "42px" : "52px", objectFit: "contain", marginBottom: mob ? "22px" : "32px" }} />
           <Label>Próximo Passo</Label>
-          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(32px,9vw,48px)" : "clamp(40px,6vw,68px)", fontWeight: 700, color: WHITE, margin: "16px 0 0", lineHeight: 1.05 }}>
-            Pronto Para Receber<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Leads Todos os Dias</span>?
+          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "clamp(30px,8.5vw,46px)" : "clamp(38px,5.5vw,64px)", fontWeight: 700, color: WHITE, margin: "14px 0 0", lineHeight: 1.05 }}>
+            Solicite Agora seu<br /><span style={{ color: GOLD, fontStyle: "italic" }}>Diagnóstico de Vendas</span>
           </h2>
-          <div style={{ width: "70px", height: "1px", background: `linear-gradient(90deg,transparent,${GOLD},transparent)`, margin: mob ? "20px auto" : "26px auto" }} />
-          <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "16px" : "18px", color: GRAY, lineHeight: 1.65, marginBottom: mob ? "28px" : "40px" }}>
-            Agende um diagnóstico gratuito. Em 60 minutos, você terá um mapa claro de como gerar leads qualificados todos os dias e aumentar seu faturamento.
+          <div style={{ width: "64px", height: "1px", background: `linear-gradient(90deg,transparent,${GOLD},transparent)`, margin: mob ? "18px auto" : "24px auto" }} />
+          <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: mob ? "15px" : "18px", color: GRAY_L, lineHeight: 1.7, marginBottom: mob ? "26px" : "38px" }}>
+            Em 60 minutos analisamos seu CPL atual, seu ticket médio e sua operação. Você sai com um plano claro de como aumentar o faturamento da sua marcenaria ou showroom com inteligência de dados e Meta Ads de alto ticket.
           </p>
-          <GoldButton large fullWidth={mob} onClick={() => window.open(WA,"_blank")}>
-            Quero Gerar Leads Todo Dia
+          <GoldButton large fullWidth={mob} onClick={() => window.open(WA_URL, "_blank")}>
+            Solicitar Diagnóstico de Vendas
           </GoldButton>
-          <div style={{ marginTop: "16px", fontSize: "12px", color: GRAY, letterSpacing: "0.05em" }}>
-            Diagnóstico gratuito • Sem compromisso • Resposta em até 24h
+          <div style={{ marginTop: "14px", fontSize: "11px", color: GRAY, letterSpacing: "0.06em" }}>
+            Gratuito • Sem compromisso • Exclusivo para o setor moveleiro
+          </div>
+
+          {/* Segunda opção de CTA */}
+          <div style={{ marginTop: mob ? "16px" : "20px" }}>
+            <OutlineButton fullWidth={mob} onClick={() => document.getElementById("pegasus")?.scrollIntoView({ behavior: "smooth" })}>
+              Conhecer o Sistema Pegasus
+            </OutlineButton>
           </div>
         </Reveal>
       </div>
@@ -596,118 +883,118 @@ function CTAFinal() {
   );
 }
 
-// ── FOOTER ─────────────────────────────────────────────────────────────────────
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
 function Footer() {
   const mob = useIsMobile();
   return (
-    <footer style={{ background: BLACK, borderTop: `1px solid ${GOLD}20`, padding: mob ? "44px 20px 90px" : "56px 48px 36px" }}>
+    <footer style={{ background: BLACK_SURF, borderTop: `1px solid ${GOLD_DIM}`, padding: mob ? "40px 20px 88px" : "52px 48px 32px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         {mob ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "26px" }}>
             <div>
-              <img src={logoSrc} alt="Hawks" style={{ height: "40px", objectFit: "contain", marginBottom: "12px" }} />
-              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "14px", color: GRAY, lineHeight: 1.7, margin: 0 }}>
-                Especialistas em escalar negócios locais com tráfego pago, criativos e sites de alta conversão.
+              <img src={logoSrc} alt="Hawks" style={{ height: "38px", objectFit: "contain", marginBottom: "10px" }} />
+              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "13px", color: GRAY_L, lineHeight: 1.7, margin: 0 }}>
+                Especialistas em crescimento para marcenarias e indústria moveleira — Meta Ads, Pegasus e criativos de alto padrão.
               </p>
-              <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+              <div style={{ display: "flex", gap: "10px", marginTop: "14px" }}>
                 {[Instagram, MessageCircle, Phone].map((Icon, i) => (
-                  <div key={i} style={{ width: "44px", height: "44px", border: `1px solid ${GOLD}33`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Icon size={16} color={GOLD} />
+                  <div key={i} style={{ width: "44px", height: "44px", border: `1px solid ${GOLD_DIM}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={15} color={GOLD} />
                   </div>
                 ))}
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
               <div>
-                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "11px", fontWeight: 600, color: WHITE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "12px" }}>Serviços</div>
-                {["Meta Ads","Criativos","Landing Pages","Sites","Catálogo"].map(item => (
-                  <div key={item} style={{ fontSize: "13px", color: GRAY, marginBottom: "8px", fontFamily: "'Cormorant Garamond',serif" }}>{item}</div>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: WHITE, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "10px", fontFamily: "'Cormorant Garamond',serif" }}>Soluções</div>
+                {["Meta Ads Alto Ticket","Pegasus — IA","Criativos","Landing Pages","Sites","Catálogo Digital"].map(item => (
+                  <div key={item} style={{ fontSize: "12px", color: GRAY_L, marginBottom: "7px", fontFamily: "'Cormorant Garamond',serif" }}>{item}</div>
                 ))}
               </div>
               <div>
-                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "11px", fontWeight: 600, color: WHITE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "12px" }}>Contato</div>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: WHITE, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "10px", fontFamily: "'Cormorant Garamond',serif" }}>Contato</div>
                 {[[Mail,"contato@hawksdigital.com.br"],[Phone,"(11) 99999-0000"],[Instagram,"@hawksassessoria"]].map(([Icon,text]) => (
-                  <div key={text} style={{ display: "flex", alignItems: "flex-start", gap: "7px", marginBottom: "9px" }}>
-                    <Icon size={12} color={GOLD} style={{ marginTop: "2px", flexShrink: 0 }} />
-                    <span style={{ fontSize: "12px", color: GRAY, fontFamily: "'Cormorant Garamond',serif", wordBreak: "break-all" }}>{text}</span>
+                  <div key={text} style={{ display: "flex", alignItems: "flex-start", gap: "7px", marginBottom: "8px" }}>
+                    <Icon size={11} color={GOLD} style={{ marginTop: "2px", flexShrink: 0 }} />
+                    <span style={{ fontSize: "11px", color: GRAY_L, fontFamily: "'Cormorant Garamond',serif", wordBreak: "break-all" }}>{text}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "52px", marginBottom: "36px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "48px", marginBottom: "32px" }}>
             <div>
-              <img src={logoSrc} alt="Hawks" style={{ height: "46px", objectFit: "contain", marginBottom: "14px" }} />
-              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "15px", color: GRAY, lineHeight: 1.7, maxWidth: "290px" }}>
-                Especialistas em escalar negócios locais com tráfego pago, criativos e sites de alta conversão.
+              <img src={logoSrc} alt="Hawks" style={{ height: "44px", objectFit: "contain", marginBottom: "12px" }} />
+              <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "15px", color: GRAY_L, lineHeight: 1.7, maxWidth: "280px" }}>
+                Especialistas em crescimento para marcenarias e indústria moveleira — Meta Ads, Pegasus e criativos de alto padrão.
               </p>
-              <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+              <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
                 {[Instagram, MessageCircle, Phone].map((Icon, i) => (
-                  <div key={i} style={{ width: "40px", height: "40px", border: `1px solid ${GOLD}33`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = `${GOLD}11`; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = `${GOLD}33`; e.currentTarget.style.background = "transparent"; }}>
-                    <Icon size={14} color={GOLD} />
+                  <div key={i} style={{ width: "38px", height: "38px", border: `1px solid ${GOLD_DIM}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.background = GOLD_GLOW; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = GOLD_DIM; e.currentTarget.style.background = "transparent"; }}>
+                    <Icon size={13} color={GOLD} />
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "11px", fontWeight: 600, color: WHITE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "16px" }}>Serviços</div>
-              {["Meta Ads","Criativos em Vídeo","Criativos em Foto","Landing Pages","Sites de Vendas","Catálogo Digital"].map(item => (
-                <div key={item} style={{ fontSize: "13px", color: GRAY, marginBottom: "8px", cursor: "pointer", transition: "color 0.2s", fontFamily: "'Cormorant Garamond',serif" }}
-                  onMouseEnter={e => e.target.style.color = GOLD}
-                  onMouseLeave={e => e.target.style.color = GRAY}>{item}</div>
+              <div style={{ fontSize: "10px", fontWeight: 700, color: WHITE, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "14px", fontFamily: "'Cormorant Garamond',serif" }}>Soluções</div>
+              {["Meta Ads Alto Ticket","Pegasus — IA Exclusiva","Criativos em Vídeo","Criativos em Foto","Landing Pages","Sites","Catálogo Digital"].map(item => (
+                <div key={item} style={{ fontSize: "12px", color: GRAY_L, marginBottom: "7px", cursor: "pointer", transition: "color 0.2s", fontFamily: "'Cormorant Garamond',serif" }}
+                  onMouseEnter={e => e.target.style.color = WHITE}
+                  onMouseLeave={e => e.target.style.color = GRAY_L}>{item}</div>
               ))}
             </div>
             <div>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "11px", fontWeight: 600, color: WHITE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "16px" }}>Contato</div>
+              <div style={{ fontSize: "10px", fontWeight: 700, color: WHITE, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "14px", fontFamily: "'Cormorant Garamond',serif" }}>Contato</div>
               {[[Mail,"contato@hawksdigital.com.br"],[Phone,"+55 (11) 99999-0000"],[Instagram,"@hawksassessoria"]].map(([Icon,text]) => (
-                <div key={text} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                  <Icon size={12} color={GOLD} />
-                  <span style={{ fontSize: "13px", color: GRAY, fontFamily: "'Cormorant Garamond',serif" }}>{text}</span>
+                <div key={text} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "9px" }}>
+                  <Icon size={11} color={GOLD} />
+                  <span style={{ fontSize: "12px", color: GRAY_L, fontFamily: "'Cormorant Garamond',serif" }}>{text}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
-        <div style={{ borderTop: `1px solid ${GOLD}15`, paddingTop: "18px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px", marginTop: mob ? "24px" : "0" }}>
+        <div style={{ borderTop: `1px solid ${GOLD_DIM}`, paddingTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px", marginTop: mob ? "20px" : "0" }}>
           <span style={{ fontSize: "11px", color: GRAY }}>© 2025 Hawks Assessoria Digital. Todos os direitos reservados.</span>
-          <span style={{ fontSize: "11px", color: `${GOLD}77` }}>Especialistas em Escalar Negócios Locais</span>
+          <span style={{ fontSize: "11px", color: `${GOLD}66` }}>Pegasus — Tecnologia Exclusiva Hawks</span>
         </div>
       </div>
     </footer>
   );
 }
 
-// ── FLOATING WHATSAPP ──────────────────────────────────────────────────────────
+// ─── FLOATING WA ──────────────────────────────────────────────────────────────
 function FloatingWA() {
-  const mob  = useIsMobile();
+  const mob = useIsMobile();
   const [show, setShow] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setShow(true), 2200); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setShow(true), 2000); return () => clearTimeout(t); }, []);
   if (!mob) return null;
   return (
-    <a href="https://wa.me/5511999990000" target="_blank" rel="noopener noreferrer"
+    <a href={WA_URL} target="_blank" rel="noopener noreferrer"
       style={{
-        position: "fixed", bottom: "88px", right: "20px", zIndex: 300,
-        width: "54px", height: "54px", borderRadius: "50%",
+        position: "fixed", bottom: "86px", right: "18px", zIndex: 300,
+        width: "52px", height: "52px", borderRadius: "50%",
         background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center",
-        boxShadow: "0 4px 18px rgba(37,211,102,.45)",
-        opacity: show ? 1 : 0, transform: show ? "scale(1)" : "scale(0.5)",
+        boxShadow: "0 4px 18px rgba(37,211,102,.5)",
+        opacity: show ? 1 : 0, transform: show ? "scale(1)" : "scale(0.4)",
         transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
         textDecoration: "none",
       }}>
-      <MessageCircle size={24} fill="white" color="white" />
+      <MessageCircle size={22} fill="white" color="white" />
     </a>
   );
 }
 
-// ── STICKY BOTTOM CTA ──────────────────────────────────────────────────────────
-function StickyBottomCTA() {
-  const mob  = useIsMobile();
+// ─── STICKY CTA ───────────────────────────────────────────────────────────────
+function StickyCTA() {
+  const mob = useIsMobile();
   const [show, setShow] = useState(false);
   useEffect(() => {
-    const h = () => setShow(window.scrollY > 350);
+    const h = () => setShow(window.scrollY > 320);
     window.addEventListener("scroll", h);
     return () => window.removeEventListener("scroll", h);
   }, []);
@@ -715,33 +1002,35 @@ function StickyBottomCTA() {
   return (
     <div style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 299,
-      padding: "10px 20px",
-      background: `${BLACK}EE`, borderTop: `1px solid ${GOLD}25`,
-      backdropFilter: "blur(12px)",
+      padding: "10px 18px",
+      background: `${BLACK}F0`, borderTop: `1px solid ${GOLD_DIM}`,
+      backdropFilter: "blur(14px)",
       transform: show ? "translateY(0)" : "translateY(100%)",
-      transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)",
+      transition: "transform 0.38s cubic-bezier(0.4,0,0.2,1)",
     }}>
-      <GoldButton fullWidth large onClick={() => window.open("https://wa.me/5511999990000","_blank")}>
-        Quero Gerar Leads Todo Dia
+      <GoldButton fullWidth large onClick={() => window.open(WA_URL, "_blank")}>
+        Solicitar Diagnóstico de Vendas
       </GoldButton>
     </div>
   );
 }
 
-// ── APP ────────────────────────────────────────────────────────────────────────
+// ─── APP ──────────────────────────────────────────────────────────────────────
 export default function HawksLanding() {
   useEffect(() => {
-    const link  = document.createElement("link");
-    link.rel    = "stylesheet";
-    link.href   = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap";
+    const link = document.createElement("link");
+    link.rel   = "stylesheet";
+    link.href  = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap";
     document.head.appendChild(link);
-    document.body.style.cssText = "margin:0;padding:0;background:#0A0A0A;overflow-x:hidden";
+    document.body.style.cssText = "margin:0;padding:0;background:#080808;overflow-x:hidden";
   }, []);
 
   return (
-    <div style={{ fontFamily: "'Cormorant Garamond',serif", background: "#0A0A0A", color: "#F5F3EE", margin: 0, padding: 0, overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Cormorant Garamond',serif", background: "#080808", color: "#FAFAFA", margin: 0, padding: 0, overflowX: "hidden" }}>
       <Nav />
       <Hero />
+      <AutoridadeNicho />
+      <Pegasus />
       <Servicos />
       <CaseInfinite />
       <Numeros />
@@ -750,7 +1039,7 @@ export default function HawksLanding() {
       <CTAFinal />
       <Footer />
       <FloatingWA />
-      <StickyBottomCTA />
+      <StickyCTA />
     </div>
   );
 }
